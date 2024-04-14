@@ -17,10 +17,9 @@ data_handler_config: &data_handler_config
         - class: CSRankNorm
           kwargs:
               fields_group: feature
-        - class: FillnaType
+        - class: Fillna
           kwargs:
               fields_group: feature
-              fill_method: 'ffill'
     learn_processors:
         - class: DropnaLabel
         - class: CSRankNorm
@@ -46,53 +45,82 @@ port_analysis_config: &port_analysis_config
             open_cost: 0.0005
             close_cost: 0.0015
             min_cost: 5
+
 task:
     model:
-        class: Informer
-        module_path: Informer
+        class: PatchTST
+        module_path: PatchTST
         kwargs:
             d_feat: 6
             seq_len: 60
             pred_len: 5
-            label_len: 5
-            factor: 3
-            enc_in: 6
-            dec_in: 1
-            c_out: 8
-            d_model: 64
-            n_epochs: 1
-            early_stop: 10
-            lr: 1e-3
+            dropout: 0.0
             batch_size: 1024
-            metric: loss
+            epoch: 1
+            early_stop: 5
+            optimizer: adam
             loss: mse
-            num_workers: 20
+            metric: loss
+            lr: 0.01
+            enc_in: 21
+            dec_in: 7
+            d_model: 128
+            d_ff: 256
+            n_heads: 16
+            e_layers: 3
+            d_layers: 2
+            fc_dropout: 0.1
+            head_dropout: 0.1
+            norm: "batchnorm"
+            act: "gelu"
+            key_padding_mask: True
+            padding_var: None
+            attn_mask: None
+            res_attention: True
+            pre_norm: False
+            store_attn: False
+            pe: "zeros"
+            learn_pe: True
+            pretrain_head: False
+            head_type: "flatten"
+            individual: False
+            revin: False
+            affine: False
+            subtract_last: False
+            decomposition: False
+            kernel_size: 3
+            patch_len: 5
+            stride: 2
+            padding_patch: False
+            verbose: False
             GPU: 0
+            n_jobs: 25
+            seed: 42
     dataset:
-        class: InformerDatasetH
-        module_path: data_formatters.informer_dataset
+        class: PatchTSTDatasetH
+        module_path: data_formatters.patchtst_dataset
         kwargs:
             handler:
                 class: Alpha360
                 module_path: qlib.contrib.data.handler
                 kwargs: *data_handler_config
             segments:
-                train: [2016-01-01, 2019-12-31]
-                valid: [2020-01-01, 2020-12-31]
+                train: [2018-01-01, 2020-09-30]
+                valid: [2020-10-01, 2020-12-31]
                 test: [2021-01-01, 2023-03-01]
             step_len: 65
-    record: 
+    record:
         - class: SignalRecord
           module_path: qlib.workflow.record_temp
-          kwargs: 
+          kwargs:
             model: <MODEL>
             dataset: <DATASET>
         - class: SigAnaRecord
           module_path: qlib.workflow.record_temp
-          kwargs: 
+          kwargs:
             ana_long_short: False
             ann_scaler: 252
         - class: PortAnaRecord
           module_path: qlib.workflow.record_temp
-          kwargs: 
+          kwargs:
             config: *port_analysis_config
