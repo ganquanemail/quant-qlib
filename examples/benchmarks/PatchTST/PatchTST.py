@@ -117,19 +117,7 @@ class PatchTSTModel(nn.Module):
             x = self.model(x)
             x = x.permute(0,2,1)    # x: [Batch, Input length, Channel]
 
-        # # x = x.contiguous().view(x.shape[0], -1)
-        # x_f = x[:, -1, :].contiguous().view(x.shape[0], -1)
-        # # x_y = x[:, :, -1].contiguous().view(x.shape[0], -1)
-        #
-        # # emb_x = self.emb_linear(emb_x)
-        # # x = torch.concat([x_f, x_y, emb_x], axis=1)
-        # x = self.linear(x_f) # x: [Batch, Input length, 1]
-        #
-        # x = x.view(x.shape[0], 1, x.shape[1])
-
-        # x = x[:, -1:, :]
-        #
-        x = self.linear(x)
+        x = x[:, -1:, :]
 
         return x
 

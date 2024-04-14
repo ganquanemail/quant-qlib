@@ -62,9 +62,9 @@ task:
             loss: mse
             metric: loss
             lr: 0.01
-            enc_in: 21
-            dec_in: 7
-            d_model: 128
+            enc_in: 6
+            dec_in: 1
+            d_model: 64
             d_ff: 256
             n_heads: 16
             e_layers: 3
@@ -105,8 +105,8 @@ task:
                 module_path: qlib.contrib.data.handler
                 kwargs: *data_handler_config
             segments:
-                train: [2018-01-01, 2020-09-30]
-                valid: [2020-10-01, 2020-12-31]
+                train: [2016-01-01, 2019-12-31]
+                valid: [2020-01-01, 2020-12-31]
                 test: [2021-01-01, 2023-03-01]
             step_len: 65
     record:
