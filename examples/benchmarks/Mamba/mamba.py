@@ -51,7 +51,7 @@ class ModelArgs:
     d_lens: int
     vocab_size: int
     d_state: int = 16
-    d_out: int=4
+    d_out: int= 4
     expand: int = 2
     dt_rank: Union[int, str] = 'auto'
     d_conv: int = 4 
@@ -93,14 +93,6 @@ class Mamba(nn.Module):
         #                                              See "Weight Tying" paper
         #                                              https://arxiv.org/abs/1608.05859
 
-        self.decoder_layer = nn.Linear(args.d_lens, 1)
-
-        self.rnn_decoder = nn.GRU(
-            input_size=args.d_model,
-            hidden_size=args.d_out,
-            num_layers=1,
-            batch_first=False,
-        ) #decoder
 
         self.norm_attn = nn.Sequential(Transpose(1, 2), nn.BatchNorm1d(args.d_out), Transpose(1, 2))
         self.decoder_layer = nn.Linear(args.d_out, 1)
@@ -126,20 +118,11 @@ class Mamba(nn.Module):
             x = layer(x)
             
         x = self.norm_f(x)
-        logits = self.lm_head(x)
-
-        # logits = torch.permute(logits, (0, 2, 1))
-
-        output, _ = self.rnn_decoder(logits)
-
-        output = self.norm_attn(output)
+        output = self.lm_head(x)
         output = self.decoder_layer(output[:, -1, :])  # [512, 1]
 
         return output.squeeze()
 
-        # output= self.decoder_layer(torch.squeeze(logits))
-        #
-        # return output
 
     
     @staticmethod
