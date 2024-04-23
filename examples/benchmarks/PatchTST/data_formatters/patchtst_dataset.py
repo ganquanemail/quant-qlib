@@ -92,51 +92,6 @@ class PatchTSTDataSampler(TSDataSampler):
         self.data_stamp = time_features(time_idx)
 
 
-        # emb_data = np.load('D:\work\qlib_main\qlib_csc\examples\\benchmarks\\TiDGE\\emb_list_embs10_1e6.npy')
-        # emb_data = pd.DataFrame(emb_data)
-        # emb_data.columns = ['ebm{}'.format(i) for i in range(emb_data.shape[1])]
-        # emb_data = emb_data.reset_index()
-        #
-        # sec_data = pd.read_csv('D:\work\qlib_main\qlib_csc\examples\\benchmarks\\TiDGE\\ticker_sector.csv')
-        # sec_data.columns = ['instrument', 'sector']
-        # sec_data['sec'] = sec_data.sector.apply(lambda x : int(x.split('.')[0][4:])-5000)
-        #
-        # emb_sec = pd.merge(sec_data, emb_data, left_on='sec', right_on='index').drop(['sector','sec', 'index'], axis=1)
-        # emb_sec['instrument'] = emb_sec['instrument'].apply(lambda x :  x[-2:] + x[:-3])
-        #
-        # add_data = pd.read_hdf('D:\work\\tide_main\Tide2\data\StockDataset\\input_data_rank_2016.h5')
-        # f_clos =  ['malpha22', 'malpha20', 'malpha7', 'malpha11', 'malpha46', 'malpha29', 'malpha49', 'malpha50', 'malpha27', 'malpha23']
-        # add_data = add_data.loc[:, f_clos]
-        # add_data = add_data.swaplevel()
-        # add_data.replace([np.inf, -np.inf], 0, inplace=True)
-        # add_data = add_data.groupby(level=0).rank(pct=True)
-        # add_data -= 0.5
-        # add_data *= 3.46
-        #
-        # add_data.index.names = ['datetime','instrument']
-        # idx = add_data.index.get_level_values(1)
-        # idx_new = [ i[-2:] + i[:-3] for i in idx]
-        # add_data = add_data.reset_index()
-        # add_data['instrument'] = idx_new
-        #
-        # add_data = pd.merge(add_data, emb_sec, left_on='instrument', right_on='instrument', how='left')
-        # add_data = add_data.set_index(['datetime','instrument'])
-        #
-        # merge_data = data['feature'].join(add_data).groupby(level=1).fillna(method='ffill').dropna()
-        #
-        # col_index = merge_data.columns[:-10]
-        # # merge_data.columns =       pd.MultiIndex.from_product([['feature',], list(col_index)])
-        # merge_data = merge_data.join(data['label'])
-        # cols_index = [('feature', i) for i in col_index]
-        # cols_index += [('emb_feature', 'emb{}'.format(i)) for i in range(10)]
-        # cols_index += [data.columns[-1], ]
-        # merge_data.columns = pd.MultiIndex.from_tuples(cols_index)
-        #
-        # super().__init__(merge_data, start, end, step_len, fillna_type, dtype, flt_data)
-        #
-        # time_idx = list(self.idx_df.index)
-        # self.data_stamp = time_features(time_idx)
-
     def __getitem__(self, idx: Union[int, Tuple[object, str], List[int]]):
             """
             # We have two method to get the time-series of a sample
