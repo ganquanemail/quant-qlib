@@ -16,11 +16,23 @@ from qlib.tests.data import GetData
 from qlib.tests.config import CSI300_BENCH, CSI300_GBDT_TASK
 
 
+
 if __name__ == "__main__":
     # use default data
-    provider_uri = "~/.qlib/qlib_data/cn_data"  # target_dir
-    GetData().qlib_data(target_dir=provider_uri, region=REG_CN, exists_skip=True)
-    qlib.init(provider_uri=provider_uri, region=REG_CN)
+    use_db = True
+    database_uri = {
+        'mongodb': "mongodb://localhost:27017/stock",
+        'pg': "pg://user:@localhost:5432/qlib",
+        'winddb': "winddb://user:@localhost:3306/qlib",
+    }
+    if use_db:
+        qlib.init(database_uri=database_uri['mongodb'], region=REG_CN)
+    else:
+        provider_uri = "D:\qlib_data\qlib_cn"  # target_dir
+        qlib.init(provider_uri=provider_uri, region=REG_CN)
+
+    # GetData().qlib_data(target_dir=provider_uri, region=REG_CN, exists_skip=True)
+    # qlib.init(provider_uri=provider_uri, region=REG_CN)
 
     model = init_instance_by_config(CSI300_GBDT_TASK["model"])
     dataset = init_instance_by_config(CSI300_GBDT_TASK["dataset"])
@@ -64,22 +76,22 @@ if __name__ == "__main__":
     example_df = dataset.prepare("train")
     print(example_df.head())
 
-    # start exp
-    with R.start(experiment_name="workflow"):
-        R.log_params(**flatten_dict(CSI300_GBDT_TASK))
-        model.fit(dataset)
-        R.save_objects(**{"params.pkl": model})
-
-        # prediction
-        recorder = R.get_recorder()
-        sr = SignalRecord(model, dataset, recorder)
-        sr.generate()
-
-        # Signal Analysis
-        sar = SigAnaRecord(recorder)
-        sar.generate()
-
-        # backtest. If users want to use backtest based on their own prediction,
-        # please refer to https://qlib.readthedocs.io/en/latest/component/recorder.html#record-template.
-        par = PortAnaRecord(recorder, port_analysis_config, "day")
-        par.generate()
+    # # start exp
+    # with R.start(experiment_name="workflow"):
+    #     R.log_params(**flatten_dict(CSI300_GBDT_TASK))
+    #     model.fit(dataset)
+    #     R.save_objects(**{"params.pkl": model})
+    #
+    #     # prediction
+    #     recorder = R.get_recorder()
+    #     sr = SignalRecord(model, dataset, recorder)
+    #     sr.generate()
+    #
+    #     # Signal Analysis
+    #     sar = SigAnaRecord(recorder)
+    #     sar.generate()
+    #
+    #     # backtest. If users want to use backtest based on their own prediction,
+    #     # please refer to https://qlib.readthedocs.io/en/latest/component/recorder.html#record-template.
+    #     par = PortAnaRecord(recorder, port_analysis_config, "day")
+    #     par.generate()

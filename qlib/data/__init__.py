@@ -23,6 +23,7 @@ from .data import (
     ClientDatasetProvider,
     BaseProvider,
     LocalProvider,
+    MongoProvider,
     ClientProvider,
 )
 
@@ -55,6 +56,7 @@ __all__ = [
     "ClientDatasetProvider",
     "BaseProvider",
     "LocalProvider",
+    "MongoProvider",
     "ClientProvider",
     "ExpressionCache",
     "DatasetCache",

@@ -10,7 +10,6 @@ import abc
 import copy
 import queue
 import bisect
-import pymongo
 import numpy as np
 import pandas as pd
 from typing import List, Union, Optional
@@ -56,25 +55,8 @@ class ProviderBackendMixin:
         backend.setdefault("module_path", "qlib.data.storage.file_storage")
         return backend
 
-    def get_database_backend(self):
-        backend = {}
-        provider_name: str = re.findall("[A-Z][^A-Z]*", self.__class__.__name__)[-2]
-        # set default storage class
-        backend.setdefault("class", f"DB{provider_name}Storage")
-        # set default storage module
-        db_name = C.get('database_uri', None).split(':')[0]
-        backend.setdefault("module_path", f"qlib.data.storage.{db_name}_storage")
-        return backend
-
     def backend_obj(self, **kwargs):
-        if C.get('database_uri', None) is not None:
-            database_uri = C.get('database_uri', None)
-            # get_module_logger("data").warning(f'backend:{database_uri}')
-            backend = self.get_database_backend()
-        else:
-            provider_uri = C.get('provider_uri', None)
-            # get_module_logger("data").warning(f'backend:{provider_uri}')
-            backend = self.backend if self.backend else self.get_default_backend()
+        backend = self.backend if self.backend else self.get_default_backend()
         backend = copy.deepcopy(backend)
         backend.setdefault("kwargs", {}).update(**kwargs)
         return init_instance_by_config(backend)
@@ -928,12 +910,6 @@ class LocalDatasetProvider(DatasetProvider):
         inst_processors=[],
     ):
         instruments_d = self.get_instruments_d(instruments, freq)
-        if isinstance(instruments_d, list):
-            pass
-        elif isinstance(instruments_d, dict):
-            instruments_d = dict(filter(lambda x: x[1][0][1] > pd.to_datetime(start_time), instruments_d.items()))
-        else:
-            pass
         column_names = self.get_column_names(fields)
         if self.align_time:
             # NOTE: if the frequency is a fixed value.
@@ -1245,11 +1221,6 @@ class LocalProvider(BaseProvider):
         """
         return DatasetD._dataset_uri(instruments, fields, start_time, end_time, freq, disk_cache)
 
-class MongoProvider(BaseProvider):
-    def __init__(self, uri="127.0.0.1"):
-        super().__init__()
-        self.uri = uri
-        self.client = pymongo.MongoClient(uri)
 
 class ClientProvider(BaseProvider):
     """Client Provider
@@ -1300,7 +1271,6 @@ if sys.version_info >= (3, 9):
     PITProviderWrapper = Annotated[PITProvider, Wrapper]
     ExpressionProviderWrapper = Annotated[ExpressionProvider, Wrapper]
     DatasetProviderWrapper = Annotated[DatasetProvider, Wrapper]
-    MongoProviderWrapper = Annotated[MongoProvider, Wrapper]
     BaseProviderWrapper = Annotated[BaseProvider, Wrapper]
 else:
     CalendarProviderWrapper = CalendarProvider
@@ -1309,7 +1279,6 @@ else:
     PITProviderWrapper = PITProvider
     ExpressionProviderWrapper = ExpressionProvider
     DatasetProviderWrapper = DatasetProvider
-    MongoProviderWrapper = MongoProvider
     BaseProviderWrapper = BaseProvider
 
 Cal: CalendarProviderWrapper = Wrapper()
@@ -1319,7 +1288,7 @@ PITD: PITProviderWrapper = Wrapper()
 ExpressionD: ExpressionProviderWrapper = Wrapper()
 DatasetD: DatasetProviderWrapper = Wrapper()
 D: BaseProviderWrapper = Wrapper()
-Mongo: MongoProviderWrapper = Wrapper()
+
 
 def register_all_wrappers(C):
     """register_all_wrappers"""
@@ -1353,11 +1322,6 @@ def register_all_wrappers(C):
             _eprovider = init_instance_by_config(C.expression_cache, module, provider=_eprovider)
         register_wrapper(ExpressionD, _eprovider, "qlib.data")
         logger.debug(f"registering ExpressionD {C.expression_provider}-{C.expression_cache}")
-
-    if getattr(C, "mongodb_provider", None) is not None:
-        mongodb_provider = init_instance_by_config(C.mongodb_provider, module)
-        register_wrapper(Mongo, mongodb_provider.client, "qlib.data")
-        logger.debug(f"registering FeatureD {C.mongodb_provider}")
 
     _dprovider = init_instance_by_config(C.dataset_provider, module)
     if getattr(C, "dataset_cache", None) is not None:

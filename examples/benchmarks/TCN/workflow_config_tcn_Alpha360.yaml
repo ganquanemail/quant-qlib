@@ -1,15 +1,19 @@
 qlib_init:
-    provider_uri: "~/.qlib/qlib_data/cn_data"
+    provider_uri: "D:\\qlib_data\\qlib_cn"
     region: cn
 market: &market csi300
 benchmark: &benchmark SH000300
 data_handler_config: &data_handler_config
-    start_time: 2008-01-01
-    end_time: 2020-08-01
-    fit_start_time: 2008-01-01
-    fit_end_time: 2014-12-31
+    start_time: 2016-01-01
+    end_time: 2023-12-31
+    fit_start_time: 2016-01-01
+    fit_end_time: 2023-12-31
     instruments: *market
     infer_processors:
+        - class: FilterCol
+          kwargs:
+              fields_group: feature
+              col_list: [ 'CLOSE1', 'OPEN1', 'HIGH1', 'LOW1', 'VWAP1', 'VOLUME1' ]
         - class: RobustZScoreNorm
           kwargs:
               fields_group: feature
@@ -32,8 +36,8 @@ port_analysis_config: &port_analysis_config
             topk: 50
             n_drop: 5
     backtest:
-        start_time: 2017-01-01
-        end_time: 2020-08-01
+        start_time: 2021-01-01
+        end_time: 2023-03-01
         account: 100000000
         benchmark: *benchmark
         exchange_kwargs:
@@ -45,23 +49,25 @@ port_analysis_config: &port_analysis_config
 task:
     model:
         class: TCN
-        module_path: qlib.contrib.model.pytorch_tcn
+        module_path: TCN
         kwargs:
             d_feat: 6
             num_layers: 5
-            n_chans: 128
-            kernel_size: 3
+            n_chans: 32
+            kernel_size: 7
             dropout: 0.5
-            n_epochs: 200
-            lr: 1e-3
-            early_stop: 20
+            n_epochs: 1
+            lr: 1e-4
+            early_stop: 5
             batch_size: 2000
             metric: loss
             loss: mse
             optimizer: adam
+            n_jobs: 20
             GPU: 0
+            seed: 42
     dataset:
-        class: DatasetH
+        class: TSDatasetH
         module_path: qlib.data.dataset
         kwargs:
             handler:
@@ -69,9 +75,10 @@ task:
                 module_path: qlib.contrib.data.handler
                 kwargs: *data_handler_config
             segments:
-                train: [2008-01-01, 2014-12-31]
-                valid: [2015-01-01, 2016-12-31]
-                test: [2017-01-01, 2020-08-01]
+                train: [2016-01-01, 2019-12-31]
+                valid: [2020-01-01, 2020-12-31]
+                test: [2021-01-01, 2023-03-01]
+            step_len: 60
     record: 
         - class: SignalRecord
           module_path: qlib.workflow.record_temp

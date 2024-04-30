@@ -55,7 +55,7 @@ task:
             num_expoerts: 4
             seed: 0
             n_jobs: 24
-            n_epochs: 1
+            n_epochs: 20
             early_stop: 3
     dataset:
         class: TSDatasetH
