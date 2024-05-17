@@ -50,3 +50,4 @@ tags
 
 ./pretrain
 .idea/
+/examples/alphazoo/alphagpt/data/
