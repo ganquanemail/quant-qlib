@@ -17,6 +17,7 @@ from typing import List, Union, Optional
 
 # For supporting multiprocessing in outer code, joblib is used
 from joblib import delayed
+from clickhouse_connect import get_client
 
 from .cache import H
 from ..config import C
@@ -1251,6 +1252,12 @@ class MongoProvider(BaseProvider):
         self.uri = uri
         self.client = pymongo.MongoClient(uri)
 
+class ClickhouseProvider(BaseProvider):
+    def __init__(self, uri="127.0.0.1", port=8133):
+        super().__init__()
+        self.uri = uri
+        self.client = get_client(host=uri, port=port)
+
 class ClientProvider(BaseProvider):
     """Client Provider
 
@@ -1301,6 +1308,7 @@ if sys.version_info >= (3, 9):
     ExpressionProviderWrapper = Annotated[ExpressionProvider, Wrapper]
     DatasetProviderWrapper = Annotated[DatasetProvider, Wrapper]
     MongoProviderWrapper = Annotated[MongoProvider, Wrapper]
+    ClickhouseProviderWrapper = Annotated[ClickhouseProvider, Wrapper]
     BaseProviderWrapper = Annotated[BaseProvider, Wrapper]
 else:
     CalendarProviderWrapper = CalendarProvider
@@ -1310,6 +1318,7 @@ else:
     ExpressionProviderWrapper = ExpressionProvider
     DatasetProviderWrapper = DatasetProvider
     MongoProviderWrapper = MongoProvider
+    ClickhouseProviderWrapper = ClickhouseProvider
     BaseProviderWrapper = BaseProvider
 
 Cal: CalendarProviderWrapper = Wrapper()
@@ -1320,6 +1329,7 @@ ExpressionD: ExpressionProviderWrapper = Wrapper()
 DatasetD: DatasetProviderWrapper = Wrapper()
 D: BaseProviderWrapper = Wrapper()
 Mongo: MongoProviderWrapper = Wrapper()
+Clickhouse: ClickhouseProviderWrapper = Wrapper()
 
 def register_all_wrappers(C):
     """register_all_wrappers"""
@@ -1358,6 +1368,11 @@ def register_all_wrappers(C):
         mongodb_provider = init_instance_by_config(C.mongodb_provider, module)
         register_wrapper(Mongo, mongodb_provider.client, "qlib.data")
         logger.debug(f"registering FeatureD {C.mongodb_provider}")
+
+    if getattr(C, "clickhouse_provider", None) is not None:
+        clickhouse_provider = init_instance_by_config(C.clickhouse_provider, module)
+        register_wrapper(Clickhouse, clickhouse_provider.client, "qlib.data")
+        logger.debug(f"registering FeatureD {C.clickhouse_provider}")
 
     _dprovider = init_instance_by_config(C.dataset_provider, module)
     if getattr(C, "dataset_cache", None) is not None:

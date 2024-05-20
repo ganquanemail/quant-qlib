@@ -24,6 +24,7 @@ from .data import (
     BaseProvider,
     LocalProvider,
     MongoProvider,
+    ClickhouseProvider,
     ClientProvider,
 )
 
@@ -57,6 +58,7 @@ __all__ = [
     "BaseProvider",
     "LocalProvider",
     "MongoProvider",
+    "ClickhouseProvider",
     "ClientProvider",
     "ExpressionCache",
     "DatasetCache",

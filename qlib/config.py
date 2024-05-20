@@ -108,6 +108,7 @@ _default_config = {
     "expression_provider": "LocalExpressionProvider",
     "dataset_provider": "LocalDatasetProvider",
     "mongodb_provider": "MongoProvider",
+    "clickhouse_provider": "ClickhouseProvider",
     "provider": "LocalProvider",
     # config it in qlib.init()
     # "provider_uri" str or dict:
@@ -205,6 +206,11 @@ _default_config = {
         "task_url": "mongodb://localhost:27017/",
         "task_db_name": "default_task_db",
     },
+
+    # "clickhouse": {
+    #     "task_url": "clickhouse://localhost:8123/",
+    #     "task_db_name": "default",
+    # },
     # Shift minute for highfreq minute data, used in backtest
     # if min_data_shift == 0, use default market time [9:30, 11:29, 1:00, 2:59]
     # if min_data_shift != 0, use shifted market time [9:30, 11:29, 1:00, 2:59] - shift*minute
