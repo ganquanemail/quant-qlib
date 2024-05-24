@@ -107,9 +107,12 @@ _default_config = {
     "pit_provider": "LocalPITProvider",
     "expression_provider": "LocalExpressionProvider",
     "dataset_provider": "LocalDatasetProvider",
-    "mongodb_provider": "MongoProvider",
-    "clickhouse_provider": "ClickhouseProvider",
     "provider": "LocalProvider",
+
+    # backend config
+    # "mongodb_provider": "MongoProvider",
+    # "clickhouse_provider": "ClickhouseProvider",
+
     # config it in qlib.init()
     # "provider_uri" str or dict:
     #   # str

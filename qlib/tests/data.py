@@ -15,6 +15,9 @@ from loguru import logger
 from cryptography.fernet import Fernet
 from qlib.utils import exists_qlib_data
 
+# #proxy setting
+# os.environ['http_proxy'] = 'http://127.0.0.1:7890'
+# os.environ['https_proxy'] = 'http://127.0.0.1:7890'
 
 class GetData:
     REMOTE_URL = "https://qlibpublic.blob.core.windows.net/data/default/stock_data"
