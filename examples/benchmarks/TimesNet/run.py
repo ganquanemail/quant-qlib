@@ -114,5 +114,6 @@ def workflow(config_path, experiment_name="workflow", uri_folder="mlruns"):
 
 if __name__ == '__main__':
 
-    config_path = 'workflow_config_gru_Alpha158.yaml'
+    config_path = 'workflow_config_timesnet_Alpha360.yaml'
     workflow(config_path)
+
